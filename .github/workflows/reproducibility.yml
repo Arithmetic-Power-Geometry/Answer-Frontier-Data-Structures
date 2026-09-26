@@ -31,6 +31,8 @@ jobs:
         run: python -m scripts.find_minimal_witnesses
       - name: Falsify frontier certificates
         run: python -m scripts.test_frontier_certificates
+      - name: Falsify margin certificate
+        run: python -m scripts.test_margin_certificate
       - name: Benchmark incremental baseline
         run: python -m scripts.benchmark_incremental
       - name: Show summary
@@ -38,6 +40,7 @@ jobs:
           cat artifacts/summary.json
           cat artifacts/incremental_baseline.json
           cat artifacts/certificate_falsification.json
+          cat artifacts/margin_certificate_falsification.json
       - name: Upload AFDS evidence
         uses: actions/upload-artifact@v4
         with:
