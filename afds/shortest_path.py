@@ -68,8 +68,11 @@ def global_transition_radius(graph: nx.Graph, all_paths: Sequence[Path], target_
         row = np.zeros(m + 1); row[:m] = coeff
         A_ub.append(row)
         b_ub.append(-float(coeff @ base))
+    # Preserve the admissible shortest-path state space: perturbed edge
+    # weights must remain nonnegative, i.e. delta_e >= -w_e.
+    bounds = [(-float(w), None) for w in base] + [(0.0, None)]
     result = linprog(c, A_ub=np.array(A_ub), b_ub=np.array(b_ub),
-                     bounds=[(None, None)] * m + [(0.0, None)], method="highs")
+                     bounds=bounds, method="highs")
     if not result.success:
         return math.inf, {}
     epsilon = float(result.x[-1])
