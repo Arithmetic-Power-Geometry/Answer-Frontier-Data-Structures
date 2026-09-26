@@ -1,6 +1,6 @@
 # Answer-Frontier Data Structures (AFDS)
 
-**Status:** research prototype / reproducibility laboratory
+**Status:** validated research prototype / reproducibility laboratory
 
 Answer-Frontier Data Structures (AFDS) study a dynamic data-structure abstraction that maintains not only a current query answer, but also a bounded frontier of nearby alternative answers together with the minimum intervention cost and witness required to reach them.
 
@@ -48,10 +48,17 @@ python scripts/run_experiments.py
 
 Generated evidence is written to `artifacts/`: CSV tables, JSON summaries, PNG figures, and a Markdown report.
 
-GitHub Actions runs the same pipeline and uploads the evidence package as a workflow artifact.
+GitHub Actions runs the same pipeline and uploads the evidence package as a workflow artifact. The validated research snapshot used for the first manuscript is commit `31e79df5f789f0430339069bd61c0cc0024fc832`; reproducibility workflow run `36242493933` completed successfully on that exact snapshot.
 
 ## License
 
 Apache License 2.0.
 
 Copyright © 2026 Mohammad Amir Khusru Akhtar
+
+
+## Evidence and scope
+
+Validated numerical claims, workflow provenance, and limitations are recorded in `docs/evidence_ledger.md`. The closest-problem semantic comparison is recorded in `docs/closest_problem_comparison.md`, and the cached primal-dual reuse theorem is stated in `docs/primal_dual_certificate.md`.
+
+The repository does not claim that AFDS is faster than ordinary shortest-path, replacement-path, distance-sensitivity, or k-shortest algorithms; those solve different query problems. Runtime comparisons in this repository compare exact AFDS global-transition recomputation against exact certified AFDS reuse under the same task definition.
