@@ -27,6 +27,8 @@ jobs:
         run: python -m pytest -q
       - name: Generate evidence
         run: python -m scripts.run_experiments
+      - name: Find theorem witnesses
+        run: python -m scripts.find_minimal_witnesses
       - name: Show summary
         run: cat artifacts/summary.json
       - name: Upload AFDS evidence
