@@ -1,0 +1,22 @@
+name: AFDS Update Event Classes
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/update_event_classes.py"
+      - ".github/workflows/update-events.yml"
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip install -r requirements.txt
+      - run: pip install -e .
+      - run: python -m scripts.update_event_classes
+      - run: cat artifacts/update_event_classes.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: afds-update-event-classes
+          path: artifacts/update_event_classes.json
