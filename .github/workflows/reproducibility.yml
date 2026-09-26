@@ -29,8 +29,12 @@ jobs:
         run: python -m scripts.run_experiments
       - name: Find theorem witnesses
         run: python -m scripts.find_minimal_witnesses
+      - name: Benchmark incremental baseline
+        run: python -m scripts.benchmark_incremental
       - name: Show summary
-        run: cat artifacts/summary.json
+        run: |
+          cat artifacts/summary.json
+          cat artifacts/incremental_baseline.json
       - name: Upload AFDS evidence
         uses: actions/upload-artifact@v4
         with:
