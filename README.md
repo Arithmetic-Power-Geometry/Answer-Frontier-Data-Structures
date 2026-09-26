@@ -48,7 +48,7 @@ python scripts/run_experiments.py
 
 Generated evidence is written to `artifacts/`: CSV tables, JSON summaries, PNG figures, and a Markdown report.
 
-GitHub Actions runs the same pipeline and uploads the evidence package as a workflow artifact. The validated research snapshot used for the first manuscript is commit `31e79df5f789f0430339069bd61c0cc0024fc832`; reproducibility workflow run `36242493933` completed successfully on that exact snapshot.
+GitHub Actions runs the same pipeline and uploads the evidence package as a workflow artifact.
 
 ## License
 
