@@ -1,0 +1,24 @@
+name: AFDS Separation Witnesses
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "afds/shortest_path.py"
+      - "scripts/find_minimal_witnesses.py"
+      - ".github/workflows/separation-witnesses.yml"
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip}
+      - run: pip install -r requirements.txt
+      - run: pip install -e .
+      - run: python -m scripts.find_minimal_witnesses
+      - run: cat artifacts/minimal_witnesses.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: afds-separation-witnesses
+          path: artifacts/minimal_witnesses.*
+          retention-days: 90
