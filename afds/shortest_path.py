@@ -110,6 +110,43 @@ def global_transition_radius(graph: nx.Graph, all_paths: Sequence[Path], target_
     return epsilon, witness
 
 
+def global_transition_lp_certificate(graph: nx.Graph, all_paths: Sequence[Path], target_path: Sequence[int]):
+    """Expose primal/dual HiGHS data for AFDS optimality-certificate research.
+
+    This is diagnostic infrastructure, not yet a dynamic reuse theorem.
+    """
+    edges = sorted(canonical_edge(u, v) for u, v in graph.edges())
+    m = len(edges)
+    base = np.array([graph[u][v]["weight"] for u, v in edges], dtype=float)
+    target_inc = _incidence(target_path, edges)
+    c = np.zeros(m + 1); c[-1] = 1.0
+    A_ub, b_ub, labels = [], [], []
+    for j, edge in enumerate(edges):
+        row=np.zeros(m+1); row[j]=1.0; row[-1]=-1.0
+        A_ub.append(row); b_ub.append(0.0); labels.append(("upper_abs", edge))
+        row=np.zeros(m+1); row[j]=-1.0; row[-1]=-1.0
+        A_ub.append(row); b_ub.append(0.0); labels.append(("lower_abs", edge))
+    for other in all_paths:
+        if tuple(other)==tuple(target_path): continue
+        coeff=target_inc-_incidence(other,edges)
+        row=np.zeros(m+1); row[:m]=coeff
+        A_ub.append(row); b_ub.append(-float(coeff@base)); labels.append(("path",tuple(other)))
+    bounds=[(-float(w),None) for w in base]+[(0.0,None)]
+    result=linprog(c,A_ub=np.array(A_ub),b_ub=np.array(b_ub),bounds=bounds,method="highs")
+    if not result.success:
+        return {"success":False,"message":result.message}
+    return {
+        "success":True,"radius":float(result.fun),"edges":edges,
+        "primal":[float(x) for x in result.x],
+        "inequality_residual":[float(x) for x in result.ineqlin.residual],
+        "inequality_marginal":[float(x) for x in result.ineqlin.marginals],
+        "inequality_labels":labels,
+        "lower_residual":[float(x) for x in result.lower.residual],
+        "lower_marginal":[float(x) for x in result.lower.marginals],
+        "upper_residual":[float(x) for x in result.upper.residual],
+        "upper_marginal":[float(x) for x in result.upper.marginals],
+    }
+
 def frontier_certificate(graph: nx.Graph, all_paths: Sequence[Path], target_path: Sequence[int],
                          tol: float = 1e-8):
     """Return exact LP radius plus active competitors and post-witness slacks.
