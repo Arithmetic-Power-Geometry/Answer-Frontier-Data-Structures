@@ -1,10 +1,14 @@
 cff-version: 1.2.0
-message: "If you use this software or research prototype, please cite the repository."
-title: "Answer-Frontier Data Structures"
+message: "If you use the AFDS framework, software, or computational results, please cite the archived V1 record."
+title: "Answer-Frontier Data Structures: Maintaining Nearest Alternative Answers Under Dynamic Updates"
 type: software
 authors:
-  - family-names: Akhtar
-    given-names: Mohammad Amir Khusru
+  - family-names: "Akhtar"
+    given-names: "Mohammad Amir Khusru"
+    orcid: "https://orcid.org/0000-0002-3432-4199"
+version: "V1"
 date-released: 2026-09-26
 license: Apache-2.0
 repository-code: "https://github.com/Arithmetic-Power-Geometry/Answer-Frontier-Data-Structures"
+doi: "10.5281/zenodo.22978115"
+url: "https://doi.org/10.5281/zenodo.22978115"
