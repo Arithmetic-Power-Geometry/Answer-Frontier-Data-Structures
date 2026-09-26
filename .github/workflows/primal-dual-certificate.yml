@@ -1,0 +1,19 @@
+name: AFDS Primal Dual Certificate
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "afds/shortest_path.py"
+      - "scripts/test_primal_dual_certificate.py"
+      - ".github/workflows/primal-dual-certificate.yml"
+jobs:
+  falsify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip install -r requirements.txt
+      - run: pip install -e .
+      - run: python -m scripts.test_primal_dual_certificate
+      - run: cat artifacts/primal_dual_certificate_test.json
