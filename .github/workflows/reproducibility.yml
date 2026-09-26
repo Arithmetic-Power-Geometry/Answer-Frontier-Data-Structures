@@ -20,11 +20,13 @@ jobs:
           python-version: "3.11"
           cache: pip
       - name: Install dependencies
-        run: python -m pip install -r requirements.txt
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install -e .
       - name: Run tests
         run: python -m pytest -q
       - name: Generate evidence
-        run: python scripts/run_experiments.py
+        run: python -m scripts.run_experiments
       - name: Show summary
         run: cat artifacts/summary.json
       - name: Upload AFDS evidence
