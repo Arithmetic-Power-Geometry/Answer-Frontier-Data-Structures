@@ -50,6 +50,18 @@ Generated evidence is written to `artifacts/`: CSV tables, JSON summaries, PNG f
 
 GitHub Actions runs the same pipeline and uploads the evidence package as a workflow artifact.
 
+## Paper and citation
+
+The AFDS framework and its shortest-path realization are described in:
+
+> Akhtar, M. A. K. (2026). *Answer-Frontier Data Structures: Maintaining Nearest Alternative Answers Under Dynamic Updates* (Version V1). Zenodo. https://doi.org/10.5281/zenodo.22978115
+
+Archived V1 record: https://doi.org/10.5281/zenodo.22978115
+
+Repository: https://github.com/Arithmetic-Power-Geometry/Answer-Frontier-Data-Structures
+
+If you use the AFDS framework, software, or computational results, please cite the archived V1 record above. GitHub can also generate citation metadata from the repository's `CITATION.cff` file.
+
 ## License
 
 Apache License 2.0.
