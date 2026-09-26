@@ -147,6 +147,33 @@ def global_transition_lp_certificate(graph: nx.Graph, all_paths: Sequence[Path],
         "upper_marginal":[float(x) for x in result.upper.marginals],
     }
 
+def cached_primal_dual_radius_certificate(cert: dict, new_graph: nx.Graph,
+                                         all_paths: Sequence[Path], target_path: Sequence[int],
+                                         tol: float = 1e-8) -> bool:
+    """Check a previously stored LP certificate without solving the old LP again."""
+    if not cert.get("success"): return False
+    edges=cert["edges"];m=len(edges);x=np.array(cert["primal"],float);eps=float(x[-1]);delta=x[:m]
+    base=np.array([new_graph[u][v]["weight"] for u,v in edges],float)
+    if np.any(base+delta < -tol) or np.any(np.abs(delta)>eps+tol):return False
+    tinc=_incidence(target_path,edges)
+    for other in all_paths:
+        if tuple(other)==tuple(target_path):continue
+        if float((tinc-_incidence(other,edges))@(base+delta))>tol:return False
+    A=[];b=[]
+    for j in range(m):
+        row=np.zeros(m+1);row[j]=1;row[-1]=-1;A.append(row);b.append(0.)
+        row=np.zeros(m+1);row[j]=-1;row[-1]=-1;A.append(row);b.append(0.)
+    for other in all_paths:
+        if tuple(other)==tuple(target_path):continue
+        coeff=tinc-_incidence(other,edges);row=np.zeros(m+1);row[:m]=coeff
+        A.append(row);b.append(-float(coeff@base))
+    A=np.array(A);b=np.array(b);y=np.array(cert["inequality_marginal"],float);z=np.array(cert["lower_marginal"],float)
+    cv=np.zeros(m+1);cv[-1]=1.
+    if np.any(y>tol) or np.any(z < -tol):return False
+    if np.max(np.abs(A.T@y+z-cv))>1e-7:return False
+    lower=np.r_[-base,0.]
+    return abs(float(b@y+lower@z)-eps)<=1e-7
+
 def stored_primal_dual_radius_certificate(old_graph: nx.Graph, new_graph: nx.Graph,
                                           all_paths: Sequence[Path], target_path: Sequence[int],
                                           tol: float = 1e-8):
