@@ -1,0 +1,22 @@
+name: AFDS Certified Incremental Benchmark
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/benchmark_certified_incremental.py"
+      - ".github/workflows/certified-incremental.yml"
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip install -r requirements.txt
+      - run: pip install -e .
+      - run: python -m scripts.benchmark_certified_incremental
+      - run: cat artifacts/incremental_certificate_benchmark.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: afds-certified-incremental
+          path: artifacts/incremental_certificate_benchmark.json
