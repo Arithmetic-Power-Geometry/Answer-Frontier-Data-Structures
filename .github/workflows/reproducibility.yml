@@ -1,0 +1,40 @@
+name: AFDS Reproducibility
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test-and-build-evidence:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Run tests
+        run: python -m pytest -q
+      - name: Generate evidence
+        run: python scripts/run_experiments.py
+      - name: Show summary
+        run: cat artifacts/summary.json
+      - name: Upload AFDS evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: afds-evidence
+          path: |
+            artifacts/*.csv
+            artifacts/*.json
+            artifacts/*.png
+            artifacts/*.md
+          if-no-files-found: error
+          retention-days: 90
