@@ -79,6 +79,34 @@ def global_transition_radius(graph: nx.Graph, all_paths: Sequence[Path], target_
     witness = {edge: float(delta) for edge, delta in zip(edges, result.x[:m]) if abs(delta) > 1e-10}
     return epsilon, witness
 
+
+def frontier_certificate(graph: nx.Graph, all_paths: Sequence[Path], target_path: Sequence[int],
+                         tol: float = 1e-8):
+    """Return exact LP radius plus active competitors and post-witness slacks.
+
+    Active competitors are paths tied with the target at the optimum.
+    This is evidence for deriving safe update certificates; no locality
+    theorem is assumed here.
+    """
+    radius, witness = global_transition_radius(graph, all_paths, target_path)
+    if not math.isfinite(radius):
+        return {"radius": radius, "witness": witness, "active_competitors": [], "min_inactive_slack": math.inf}
+    def adjusted_length(p):
+        return path_length(graph, p) + sum(witness.get(e, 0.0) for e in path_edges(p))
+    lt = adjusted_length(target_path)
+    active=[]; inactive=[]
+    for other in all_paths:
+        if tuple(other)==tuple(target_path): continue
+        slack=adjusted_length(other)-lt
+        if abs(slack)<=tol: active.append(tuple(other))
+        else: inactive.append(slack)
+    return {
+        "radius": radius,
+        "witness": witness,
+        "active_competitors": active,
+        "min_inactive_slack": min(inactive) if inactive else math.inf,
+    }
+
 def answer_frontier(graph: nx.Graph, source: int, target: int, k: int = 5, cutoff: int | None = None):
     paths = enumerate_simple_paths(graph, source, target, cutoff=cutoff)
     if not paths:
