@@ -22,13 +22,15 @@ The research hypothesis tested here is narrower:
 
 ## First laboratory: weighted shortest paths
 
-For a current unique shortest path `P0` and alternative path `P`, under independent symmetric edge perturbations bounded by `|Delta_e| <= epsilon`, the pairwise tie radius is
+For a current unique shortest path `P0` and alternative path `P`, interventions satisfy both `|Delta_e| <= epsilon` and the shortest-path state-space constraint `w_e + Delta_e >= 0`. Let `A=P0\\P`, `B=P\\P0`, and `g=L(P)-L(P0)`. The exact pairwise tie radius is the smallest nonnegative `epsilon` satisfying
 
 ```
-d_pair(P0,P) = (L(P)-L(P0)) / |P0 symmetric_difference P|.
+|A| epsilon + sum_{e in B} min(epsilon, w_e) >= g.
 ```
 
-The repository also computes an exact global-optimality radius for the finite set of enumerated simple paths by linear programming.
+When no alternative-only edge reaches the zero-weight floor this reduces to the familiar unconstrained expression `g / |P0 symmetric_difference P|`. The implementation solves the general piecewise-linear (water-filling) form and independently regression-tests it against a two-path linear program.
+
+The repository also computes an exact global-optimality radius for the finite set of enumerated simple paths by linear programming, with the same nonnegative perturbed-weight constraint.
 
 The laboratory searches for:
 1. **length-transition separation** — second-shortest need not be nearest transition;
