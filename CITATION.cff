@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software or research prototype, please cite the repository."
+title: "Answer-Frontier Data Structures"
+type: software
+authors:
+  - family-names: Akhtar
+    given-names: Mohammad Amir Khusru
+date-released: 2026-09-26
+license: Apache-2.0
+repository-code: "https://github.com/Arithmetic-Power-Geometry/Answer-Frontier-Data-Structures"
