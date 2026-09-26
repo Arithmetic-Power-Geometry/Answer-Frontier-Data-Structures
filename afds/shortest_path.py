@@ -34,15 +34,45 @@ def enumerate_simple_paths(graph: nx.Graph, source: int, target: int, cutoff: in
     return paths
 
 def pairwise_transition_radius(graph: nx.Graph, current: Sequence[int], alternative: Sequence[int]) -> float:
-    l0 = path_length(graph, current)
-    lp = path_length(graph, alternative)
-    gap = lp - l0
+    """Exact pairwise tie radius with nonnegative perturbed edge weights.
+
+    Under |delta_e| <= epsilon, edges used only by current can be increased
+    by epsilon without a state-space bound, while edges used only by the
+    alternative can be decreased by at most min(epsilon, w_e).  Hence the
+    maximum reducible path-length gap is
+
+        |A| epsilon + sum_{e in B} min(epsilon, w_e),
+
+    where A=current\\alternative and B=alternative\\current.
+    """
+    gap = path_length(graph, alternative) - path_length(graph, current)
     if gap <= 0:
         return 0.0
-    diff = set(path_edges(current)).symmetric_difference(path_edges(alternative))
-    if not diff:
+    ce=set(path_edges(current)); ae=set(path_edges(alternative))
+    a=ce-ae; b=ae-ce
+    if not a and not b:
         return math.inf
-    return gap / len(diff)
+
+    # Monotone piecewise-linear water filling.  Binary search is robust at
+    # breakpoints and also handles A=empty, where feasibility can fail.
+    def reduction(eps: float) -> float:
+        return len(a)*eps + sum(min(eps, float(graph[u][v]["weight"])) for u,v in b)
+
+    if not a:
+        cap=sum(float(graph[u][v]["weight"]) for u,v in b)
+        if cap + 1e-12 < gap:
+            return math.inf
+        hi=max([float(graph[u][v]["weight"]) for u,v in b], default=0.0)
+    else:
+        hi=max(1.0, gap/max(1,len(a)))
+        while reduction(hi) < gap:
+            hi*=2.0
+    lo=0.0
+    for _ in range(80):
+        mid=(lo+hi)/2.0
+        if reduction(mid)>=gap: hi=mid
+        else: lo=mid
+    return hi
 
 def _incidence(path: Sequence[int], edges: Sequence[Edge]) -> np.ndarray:
     pe = set(path_edges(path))
