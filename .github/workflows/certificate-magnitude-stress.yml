@@ -1,0 +1,18 @@
+name: AFDS Certificate Magnitude Stress
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/stress_certificate_magnitudes.py"
+      - ".github/workflows/certificate-magnitude-stress.yml"
+jobs:
+  stress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip install -r requirements.txt
+      - run: pip install -e .
+      - run: python -m scripts.stress_certificate_magnitudes
+      - run: cat artifacts/certificate_magnitude_stress.json
