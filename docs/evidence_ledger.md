@@ -1,6 +1,6 @@
 # AFDS Evidence Ledger
 
-This file records only results produced by repository experiments/CI. It is intended to keep manuscript claims traceable and scoped.
+This file records only results produced by repository experiments/CI. It is intended to keep reported research claims traceable and scoped.
 
 | Question | Evidence | Result | Scope / limitation |
 |---|---|---|---|
