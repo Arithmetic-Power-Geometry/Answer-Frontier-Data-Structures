@@ -1,0 +1,22 @@
+name: AFDS Cached Certificate Scaling
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/benchmark_cached_certificate.py"
+      - ".github/workflows/cached-certificate-scaling.yml"
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip install -r requirements.txt
+      - run: pip install -e .
+      - run: python -m scripts.benchmark_cached_certificate
+      - run: cat artifacts/cached_certificate_scaling.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: afds-cached-certificate-scaling
+          path: artifacts/cached_certificate_scaling.json
