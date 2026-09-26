@@ -1,0 +1,18 @@
+name: AFDS Larger Scaling
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/larger_scaling.py"
+      - ".github/workflows/larger-scaling.yml"
+jobs:
+  scale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip install -r requirements.txt
+      - run: pip install -e .
+      - run: python -m scripts.larger_scaling
+      - run: cat artifacts/larger_scaling.json
