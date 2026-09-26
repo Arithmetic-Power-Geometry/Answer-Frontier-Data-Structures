@@ -147,6 +147,51 @@ def global_transition_lp_certificate(graph: nx.Graph, all_paths: Sequence[Path],
         "upper_marginal":[float(x) for x in result.upper.marginals],
     }
 
+def stored_primal_dual_radius_certificate(old_graph: nx.Graph, new_graph: nx.Graph,
+                                          all_paths: Sequence[Path], target_path: Sequence[int],
+                                          tol: float = 1e-8):
+    """Conservative exact certificate that a stored AFDS radius is unchanged.
+
+    Reuses the old optimal primal point and old HiGHS dual marginals.  It
+    certifies only when (i) the old primal remains feasible for the updated LP
+    and (ii) the old dual remains feasible and attains the same objective.
+    Otherwise it returns False and the caller must re-solve.
+    """
+    cert=global_transition_lp_certificate(old_graph,all_paths,target_path)
+    if not cert.get("success"): return False
+    edges=cert["edges"]; m=len(edges); x=np.array(cert["primal"],float)
+    eps=float(x[-1]); delta=x[:m]
+    base=np.array([new_graph[u][v]["weight"] for u,v in edges],float)
+    # primal: nonnegative adjusted weights and absolute-value envelope
+    if np.any(base+delta < -tol) or np.any(np.abs(delta) > eps+tol): return False
+    tinc=_incidence(target_path,edges)
+    for other in all_paths:
+        if tuple(other)==tuple(target_path): continue
+        oinc=_incidence(other,edges)
+        if float((tinc-oinc)@(base+delta)) > tol: return False
+
+    # Rebuild updated LP.  A and c do not change for fixed topology/path set;
+    # only path RHS values and variable lower bounds move with base weights.
+    A=[]; b=[]
+    for j in range(m):
+        row=np.zeros(m+1);row[j]=1;row[-1]=-1;A.append(row);b.append(0.)
+        row=np.zeros(m+1);row[j]=-1;row[-1]=-1;A.append(row);b.append(0.)
+    for other in all_paths:
+        if tuple(other)==tuple(target_path):continue
+        coeff=tinc-_incidence(other,edges);row=np.zeros(m+1);row[:m]=coeff
+        A.append(row);b.append(-float(coeff@base))
+    A=np.array(A); b=np.array(b)
+    y=np.array(cert["inequality_marginal"],float)
+    z=np.array(cert["lower_marginal"],float)
+    # SciPy minimization convention: y<=0 for A_ub x<=b, z>=0 for lower bounds.
+    cvec=np.zeros(m+1);cvec[-1]=1.
+    if np.any(y>tol) or np.any(z < -tol): return False
+    # No finite upper variable bounds in this LP.
+    if np.max(np.abs(A.T@y + z - cvec)) > 1e-7: return False
+    lower=np.r_[-base,0.]
+    dual_value=float(b@y + lower@z)
+    return abs(dual_value-eps) <= 1e-7
+
 def frontier_certificate(graph: nx.Graph, all_paths: Sequence[Path], target_path: Sequence[int],
                          tol: float = 1e-8):
     """Return exact LP radius plus active competitors and post-witness slacks.
