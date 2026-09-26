@@ -1,0 +1,29 @@
+name: AFDS Margin Boundary
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/sweep_margin_boundary.py"
+      - "afds/shortest_path.py"
+      - ".github/workflows/margin-boundary.yml"
+
+jobs:
+  boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Sweep certificate boundary
+        run: python -m scripts.sweep_margin_boundary
+      - name: Show result
+        run: cat artifacts/margin_boundary_sweep.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: afds-margin-boundary
+          path: artifacts/margin_boundary_sweep.json
+          retention-days: 90
