@@ -39,7 +39,9 @@ def inspect(g,s,t):
     bylen=sorted(alts,key=lambda z:(z[1],z[0]))
     byglob=sorted(alts,key=lambda z:(z[3],z[1],z[0]))
     out={}
-    if bylen[0][0]!=byglob[0][0]:
+    # Strong separation requires a strictly shorter ordinary alternative to
+    # lose to a strictly longer alternative under transition-distance ranking.
+    if bylen[0][0]!=byglob[0][0] and bylen[0][1] < byglob[0][1] - 1e-10:
         out["length_transition"]={
             "current":p0,"second_shortest":bylen[0][0],
             "second_shortest_length":bylen[0][1],
