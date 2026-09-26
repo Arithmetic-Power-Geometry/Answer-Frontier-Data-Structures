@@ -23,13 +23,16 @@ def lp_pairwise(g,p0,p1):
 
 def test_saturation_breakpoint_changes_old_formula():
     g=nx.Graph()
-    # current length 2; alternative length 5. Alternative-only weights 1 and 4.
-    g.add_weighted_edges_from([(0,1,1),(1,3,1),(0,2,1),(2,3,4)])
-    p0=(0,1,3);p1=(0,2,3)
-    # old unconstrained formula = 3/4; zero floor saturates edge (0,2),
-    # so exact radius is 1.
-    assert abs(pairwise_transition_radius(g,p0,p1)-1.0)<1e-9
-    assert abs(lp_pairwise(g,p0,p1)-1.0)<1e-9
+    # Shared prefix 0-1. Current-only edge has weight 1; alternative-only
+    # edges have weights 0.1 and 3.9. Current length 2; alternative length 5.
+    # At epsilon=0.75 the 0.1 edge has already saturated at zero, so the
+    # unconstrained gap/|symdiff| formula is too optimistic.
+    g.add_weighted_edges_from([(0,1,1),(1,3,1),(1,2,0.1),(2,3,3.9)])
+    p0=(0,1,3);p1=(0,1,2,3)
+    # Reduction is epsilon + min(epsilon,.1)+min(epsilon,3.9).
+    # For epsilon>.1 this is 2 epsilon + .1; solve =3 -> 1.45.
+    assert abs(pairwise_transition_radius(g,p0,p1)-1.45)<1e-9
+    assert abs(lp_pairwise(g,p0,p1)-1.45)<1e-9
 
 def test_pairwise_matches_independent_lp_random_small():
     rng=random.Random(20260926)
