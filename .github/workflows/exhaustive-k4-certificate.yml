@@ -1,0 +1,18 @@
+name: AFDS Exhaustive K4 Certificate
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/exhaustive_k4_certificate.py"
+      - ".github/workflows/exhaustive-k4-certificate.yml"
+jobs:
+  exhaustive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip install -r requirements.txt
+      - run: pip install -e .
+      - run: python -m scripts.exhaustive_k4_certificate
+      - run: cat artifacts/exhaustive_k4_certificate.json
